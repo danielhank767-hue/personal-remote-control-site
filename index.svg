@@ -1,13 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="100vw" height="100vh" style="position:fixed;inset:0;display:block">
-  <title>Personal Remote Control</title>
-  <foreignObject x="0" y="0" width="100%" height="100%">
-    <div xmlns="http://www.w3.org/1999/xhtml" style="margin:0;width:100%;height:100%;overflow:hidden;background:#0b1020;">
-      <iframe
-        title="Personal Remote Control"
-        src="https://danielhank767-hue.github.io/personal-remote-control-site/"
-        style="display:block;width:100%;height:100%;border:0;"
-        allow="clipboard-read; clipboard-write">
-      </iframe>
-    </div>
-  </foreignObject>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 900 520">
+  <title>Opening Personal Remote Control</title>
+  <script><![CDATA[
+    window.location.replace('https://danielhank767-hue.github.io/personal-remote-control-site/');
+  ]]></script>
+  <rect width="900" height="520" fill="#0b1020"/>
+  <a href="https://danielhank767-hue.github.io/personal-remote-control-site/">
+    <rect x="250" y="210" width="400" height="96" rx="16" fill="#4263eb"/>
+    <text x="450" y="268" fill="white" font-family="Arial, sans-serif" font-size="28" text-anchor="middle">Open Remote Control</text>
+  </a>
+  <text x="450" y="165" fill="#eef2ff" font-family="Arial, sans-serif" font-size="34" text-anchor="middle">Opening Personal Remote Control…</text>
+  <text x="450" y="365" fill="#aab6d3" font-family="Arial, sans-serif" font-size="18" text-anchor="middle">If it does not open automatically, click the button.</text>
 </svg>
