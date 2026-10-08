@@ -1,13 +1,53 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 900 520">
-  <title>Opening Personal Remote Control</title>
-  <script><![CDATA[
-    window.location.replace('https://danielhank767-hue.github.io/personal-remote-control-site/');
-  ]]></script>
-  <rect width="900" height="520" fill="#0b1020"/>
-  <a href="https://danielhank767-hue.github.io/personal-remote-control-site/">
-    <rect x="250" y="210" width="400" height="96" rx="16" fill="#4263eb"/>
-    <text x="450" y="268" fill="white" font-family="Arial, sans-serif" font-size="28" text-anchor="middle">Open Remote Control</text>
-  </a>
-  <text x="450" y="165" fill="#eef2ff" font-family="Arial, sans-serif" font-size="34" text-anchor="middle">Opening Personal Remote Control…</text>
-  <text x="450" y="365" fill="#aab6d3" font-family="Arial, sans-serif" font-size="18" text-anchor="middle">If it does not open automatically, click the button.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="position:fixed;inset:0;display:block;background:#0b1020">
+  <title>Personal Remote Control</title>
+  <foreignObject x="0" y="0" width="100%" height="100%">
+    <html xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <style>
+          * { box-sizing: border-box; } html, body { width:100%; height:100%; margin:0; } body { min-width:320px; background:#0b1020; color:#eef2ff; font:16px system-ui,sans-serif; } main { width:100%; min-height:100%; padding:clamp(10px,2vw,24px); } header { display:flex; align-items:center; gap:10px; min-height:42px; } #status { margin-left:auto; color:#aab6d3; font-size:.9rem; } .dot { width:10px; height:10px; border-radius:50%; background:#64748b; } .dot.live { background:#22c55e; box-shadow:0 0 10px #22c55e; } .card { width:min(460px,100%); margin:8vh auto; padding:28px; border:1px solid #2b385d; border-radius:16px; background:#141b31; box-shadow:0 18px 55px #0006; } h1 { margin:0 0 12px; font-size:1.5rem; } p { color:#cbd5e1; line-height:1.45; } label { display:block; margin:16px 0; color:#cbd5e1; font-size:.9rem; } input, select, button { width:100%; padding:11px 12px; border:1px solid #3b4b76; border-radius:8px; background:#0c1328; color:#eef2ff; font:inherit; } input { margin-top:7px; } button { width:auto; cursor:pointer; background:#4263eb; border-color:#5b7cff; } button:hover { background:#5272ff; } .hint { color:#94a3b8; font-size:.8rem; } #remote { height:calc(100vh - 80px); display:flex; flex-direction:column; } .toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:12px; padding:8px 0 12px; color:#aebad3; font-size:.85rem; } .toolbar label { margin:0; } .toolbar select { width:auto; margin-left:6px; padding:7px; } .toolbar span { margin-left:auto; } #screen-wrap { flex:1; min-height:0; display:grid; place-items:center; overflow:hidden; border:1px solid #293555; border-radius:12px; background:#020617; } #screen { display:block; max-width:100%; max-height:100%; object-fit:contain; cursor:crosshair; user-select:none; -webkit-user-drag:none; } @media(max-width:650px) { .card { margin:3vh auto; padding:20px; } .toolbar span { width:100%; margin-left:0; } }
+        </style>
+        <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.8.1/dist/socket.io.min.js"></script>
+      </head>
+      <body>
+        <main>
+          <header><span class="dot"></span><strong>Personal Remote Control</strong><span id="status">Not connected</span></header>
+          <section id="connect-card" class="card">
+            <h1>Connect to your PC</h1><p>Enter the HTTPS address of the Python host, then authenticate.</p>
+            <label>Host address <input id="host" placeholder="https://your-host.example.com" autocomplete="url" /></label>
+            <label>Password <input id="password" type="password" autocomplete="current-password" /></label>
+            <button id="connect">Connect</button><p class="hint">This is a self-contained jsDelivr SVG page. The password is checked by the Python host.</p>
+          </section>
+          <section id="remote" hidden="hidden"><div class="toolbar"><label>Display <select id="monitor"></select></label><button id="disconnect">Disconnect</button><span>Click the screen to control it.</span></div><div id="screen-wrap"><img id="screen" alt="Live screen from your controlled PC" /></div></section>
+        </main>
+        <script><![CDATA[
+          let socket, loggedIn = false, lastMove = 0;
+          const $ = (id) => document.getElementById(id);
+          const status = (message, live = false) => { $('status').textContent = message; document.querySelector('.dot').classList.toggle('live', live); };
+          $('connect').onclick = () => {
+            const host = $('host').value.trim().replace(/\/$/, '');
+            if (!host) return status('Enter the host address first.');
+            if (!window.io) return status('Loading connection library. Try again in a moment.');
+            if (socket) socket.disconnect(); status('Connecting…'); socket = io(host, { transports:['websocket'] });
+            socket.on('connect', () => socket.emit('login', {password:$('password').value}));
+            socket.on('connect_error', () => status('Could not reach that host.'));
+            socket.on('login_result', (r) => { if (!r.ok) return status(r.message); loggedIn=true; $('connect-card').hidden=true; $('remote').hidden=false; status(r.message,true); });
+            socket.on('monitors', (screens) => { $('monitor').innerHTML=screens.map(s=>`<option value="${s.id}">${s.name} — ${s.width} × ${s.height}</option>`).join(''); });
+            socket.on('frame', (frame) => { $('screen').src=`data:image/jpeg;base64,${frame.jpeg}`; });
+            socket.on('disconnect', () => { if(loggedIn) status('Disconnected'); loggedIn=false; });
+          };
+          $('disconnect').onclick = () => { if(socket) socket.disconnect(); $('remote').hidden=true; $('connect-card').hidden=false; };
+          $('monitor').onchange = e => socket.emit('select_monitor',{monitor:Number(e.target.value)});
+          const point = e => { const b=$('screen').getBoundingClientRect(); return {x:Math.max(0,Math.min(1,(e.clientX-b.left)/b.width)),y:Math.max(0,Math.min(1,(e.clientY-b.top)/b.height))}; };
+          $('screen').addEventListener('mousemove', e => { if(loggedIn && Date.now()-lastMove>30) { lastMove=Date.now(); socket.emit('pointer',{...point(e),action:'move'}); }});
+          $('screen').addEventListener('click', e => { if(loggedIn) socket.emit('pointer',{...point(e),action:'click',button:'left'}); });
+          $('screen').addEventListener('contextmenu', e => { e.preventDefault(); if(loggedIn) socket.emit('pointer',{...point(e),action:'click',button:'right'}); });
+          $('screen').addEventListener('dblclick', e => { if(loggedIn) socket.emit('pointer',{...point(e),action:'double',button:'left'}); });
+          $('screen').addEventListener('wheel', e => { if(loggedIn) { e.preventDefault(); socket.emit('scroll',{amount:e.deltaY>0?-3:3}); }}, {passive:false});
+          window.addEventListener('keydown', e => { if(!loggedIn || document.activeElement.tagName==='INPUT') return; e.preventDefault(); socket.emit('key',{key:e.key,ctrl:e.ctrlKey,alt:e.altKey,shift:e.shiftKey,meta:e.metaKey}); });
+        ]]></script>
+      </body>
+    </html>
+  </foreignObject>
 </svg>
