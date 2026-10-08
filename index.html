@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Personal Remote Control</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <header><span class="dot"></span><strong>Personal Remote Control</strong><span id="status">Not connected</span></header>
+    <section id="connect-card" class="card">
+      <h1>Connect to your PC</h1>
+      <p>Enter the HTTPS address of the Python host, then authenticate.</p>
+      <label>Host address <input id="host" placeholder="https://your-host.example.com" autocomplete="url"></label>
+      <label>Password <input id="password" type="password" autocomplete="current-password"></label>
+      <button id="connect">Connect</button>
+      <p class="hint">When this page is loaded through jsDelivr (HTTPS), the host address must also use HTTPS/WSS.</p>
+    </section>
+    <section id="remote" hidden>
+      <div class="toolbar"><label>Display <select id="monitor"></select></label><button id="disconnect">Disconnect</button><span>Click the screen to control it · Ctrl+Alt+Delete cannot be sent by a webpage.</span></div>
+      <div id="screen-wrap"><img id="screen" alt="Live screen from your controlled PC"></div>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.8.1/dist/socket.io.min.js" integrity="sha384-gmDMYxJus4dvR53u05+Vg+1h5+LRthE7Q+m+YdkCbCxXPZgFfsO4sZ1AD63OaQAh" crossorigin="anonymous"></script>
+  <script src="app.js"></script>
+</body>
+</html>
